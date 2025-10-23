@@ -2,7 +2,22 @@ import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { parse } from 'url';
 
-const server = createServer();
+const server = createServer((req, res) => {
+    // Add CORS headers for HTTP endpoints
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            status: 'OK',
+            active_connections: clients.size,
+            active_conversations: conversations.size,
+            timestamp: new Date().toISOString()
+        }));
+    }
+});
 const wss = new WebSocketServer({ server });
 
 // Store active connections and conversations
